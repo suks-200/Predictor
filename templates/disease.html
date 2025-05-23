@@ -1,0 +1,160 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<!-- Language Switcher Section -->
+<div style="text-align: right; margin: 20px;">
+  <a href="{{ url_for('switch_language', language='en') }}" class="btn btn-primary">
+    {{ 'अंग्रेज़ी' if lang == 'hi' else 'English ' }}
+  </a>
+  <a href="{{ url_for('switch_language', language='hi') }}" class="btn btn-secondary">
+    {{ 'Hindi' if lang == 'en' else 'हिन्दी' }}
+  </a>
+</div>
+
+<main>
+  <!-- Page Heading -->
+  <h2><b>{{ t['disease_prediction'] if lang == 'en' else 'अपने पौधे में कौन सी बीमारी लगी है यह जानें' }}</b></h2>
+
+  <!-- Upload Form -->
+  <div class="form-container">
+    <form method="POST" enctype="multipart/form-data">
+      <h3><b>{{ t['upload_image'] if lang == 'en' else 'कृपया छवि अपलोड करें' }}</b></h3>
+
+      <input type="file" name="file" id="inputfile" onchange="preview_image(event)" required />
+      <img id="output-image" alt="{{ t['preview_here'] if lang == 'en' else 'पूर्वावलोकन यहाँ दिखाई देगा...' }}" />
+      <button type="submit" class="morph-button">{{ t['predict'] if lang == 'en' else 'भविष्यवाणी करें' }}</button>
+    </form>
+  </div>
+</main>
+
+<!-- Optional Footer if not already in layout.html -->
+<footer>
+  &copy; 2025 Your Crop Prediction App. All rights reserved.
+</footer>
+
+<script>
+  function preview_image(event) {
+    const reader = new FileReader();
+    reader.onload = function () {
+      const output = document.getElementById('output-image');
+      output.src = reader.result;
+      output.style.display = 'block';  // Show image on load
+    };
+    reader.readAsDataURL(event.target.files[0]);
+  }
+</script>
+
+<style>
+  * {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(120deg, #a1c4fd, #c2e9fb);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  main {
+    flex: 1;
+    padding-top: 80px; /* space for navbar */
+    padding-bottom: 100px; /* space for footer */
+  }
+
+  h2 {
+    text-align: center;
+    color: #2d3436;
+    font-size: 24px;
+    margin-top: 2rem;
+  }
+
+  .form-container {
+    width: 400px;
+    background: #ecf0f3;
+    border-radius: 25px;
+    box-shadow: 10px 10px 30px #bebebe, -10px -10px 30px #ffffff;
+    padding: 30px 25px;
+    margin: 2rem auto;
+    text-align: center;
+  }
+
+  .form-container h3 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #2d3436;
+  }
+
+  input[type="file"] {
+    padding: 12px;
+    width: 100%;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    border: none;
+    background: #f1f2f6;
+    box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;
+    font-weight: bold;
+    color: #2d3436;
+    cursor: pointer;
+  }
+
+  input[type="file"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #74b9ff;
+  }
+
+  #output-image {
+    display: none;      /* HIDE image initially */
+    width: 100%;
+    max-height: 300px;
+    margin-top: 15px;
+    object-fit: contain;
+    border-radius: 15px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .morph-button {
+    margin-top: 30px;
+    background: #ecf0f3;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #2d3436;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 5px 5px 15px #b8b9be, -5px -5px 15px #ffffff;
+  }
+
+  .morph-button:hover {
+    background: #dff9fb;
+    box-shadow: inset 5px 5px 15px #b8b9be, inset -5px -5px 15px #ffffff;
+    transform: scale(1.05);
+  }
+
+  footer {
+    background: #dfe6e9;
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+    color: #636e72;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+    margin-top: auto;
+  }
+
+  @media (max-width: 500px) {
+    .form-container {
+      width: 90%;
+      padding: 20px;
+    }
+
+    h2 {
+      font-size: 20px;
+    }
+  }
+</style>
+{% endblock %}

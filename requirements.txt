@@ -1,0 +1,9 @@
+Flask
+pandas
+numpy
+torch
+torchvision
+Pillow
+requests
+MarkupSafe
+gunicorn

@@ -1,0 +1,356 @@
+
+{% extends 'layout.html' %}
+
+{% block body %}
+<!-- Language Switcher Section -->
+<div style="text-align: right; margin: 20px;">
+  <a href="{{ url_for('switch_language', language='en') }}" class="btn btn-primary">
+    {{ 'अंग्रेज़ी' if lang == 'hi' else 'English ' }}
+  </a>
+  <a href="{{ url_for('switch_language', language='hi') }}" class="btn btn-secondary">
+    {{ 'Hindi' if lang == 'en' else 'हिन्दी' }}
+  </a>
+</div>
+
+<!-- Form Heading -->
+<h2 class="text-center" style="font-size: 24px; color: #ffffff; text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);">
+    <b>{{ t['find_best_crop'] if lang == 'en' else 'सर्वोत्तम फसल ढूंढें' }}</b>
+</h2>
+
+<!-- Form Section -->
+<div class="form-container">
+  <form method="POST" action="{{ url_for('crop_prediction') }}">
+    <label for="Nitrogen">{{ t['nitrogen'] if lang == 'en' else 'नाइट्रोजन' }}</label>
+    <input type="text" id="Nitrogen" name="nitrogen" placeholder="{{ t['enter_value'] if lang == 'en' else 'मान दर्ज करें' }}" required oninput="convertToHindi(this)" />
+
+    <label for="Phosphorous">{{ t['phosphorous'] if lang == 'en' else 'फास्फोरस' }}</label>
+    <input type="text" id="Phosphorous" name="phosphorous" placeholder="{{ t['enter_value'] if lang == 'en' else 'मान दर्ज करें' }}" required oninput="convertToHindi(this)" />
+
+    <label for="Pottasium">{{ t['pottasium'] if lang == 'en' else 'पोटेशियम' }}</label>
+    <input type="text" id="Pottasium" name="pottasium" placeholder="{{ t['enter_value'] if lang == 'en' else 'मान दर्ज करें' }}" required oninput="convertToHindi(this)" />
+
+    <label for="ph">{{ t['ph_level'] if lang == 'en' else 'pH स्तर' }}</label>
+    <input type="text" step="0.01" id="ph" name="ph" placeholder="{{ t['enter_ph_value'] if lang == 'en' else 'pH मान दर्ज करें' }}" required oninput="convertToHindi(this)" />
+
+    <label for="Rainfall">{{ t['rainfall'] if lang == 'en' else 'वर्षा' }} (in mm)</label>
+    <input type="text" step="0.01" id="Rainfall" name="rainfall" placeholder="{{ t['enter_rainfall'] if lang == 'en' else 'वर्षा मान दर्ज करें' }}" required oninput="convertToHindi(this)" />
+
+    <label for="State">{{ t['state'] if lang == 'en' else 'राज्य' }}</label>
+    <select id="sts" name="stt" required onchange="print_city(this.selectedIndex)">
+        <!-- Dynamic State Options will be inserted here -->
+    </select>
+
+    <label for="City">{{ t['city'] if lang == 'en' else 'शहर' }}</label>
+    <select id="state" name="city" required>
+        <!-- Dynamic City Options will be inserted here -->
+    </select>
+
+    <script language="javascript">
+      // Language-based dynamic state and city generation
+      var states = {
+    'en': [
+        'Select State', 'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 
+        'Jharkhand', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab', 
+        'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal', 'Andaman and Nicobar Islands', 
+        'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu', 'Lakshadweep', 'Delhi', 'Puducherry'
+    ],
+    'hi': [
+        'राज्य चुनें', 'आंध्र प्रदेश', 'अरुणाचल प्रदेश', 'असम', 'बिहार', 'छत्तीसगढ़', 'गोवा', 'गुजरात', 'हरियाणा', 'हिमाचल प्रदेश', 
+        'झारखंड', 'कर्नाटक', 'केरल', 'मध्य प्रदेश', 'महाराष्ट्र', 'मणिपुर', 'मेघालय', 'मिजोरम', 'नागालैंड', 'ओडिशा', 'पंजाब', 
+        'राजस्थान', 'सिक्किम', 'तमिलनाडु', 'तेलंगाना', 'त्रिपुरा', 'उत्तर प्रदेश', 'उत्तराखंड', 'पश्चिम बंगाल', 'अंडमान और निकोबार द्वीपसमूह', 
+        'चंडीगढ़', 'दादरा और नगर हवेली और दमण और दीव', 'लक्षद्वीप', 'दिल्ली', 'पुडुचेरी'
+    ]
+};
+
+
+var cities = {
+    'en': {
+        'Andhra Pradesh': ['Hyderabad', 'Visakhapatnam', 'Vijayawada'],
+        'Arunachal Pradesh': ['Itanagar', 'Tawang', 'Pasighat'],
+        'Assam': ['Guwahati', 'Dibrugarh', 'Jorhat'],
+        'Bihar': ['Patna', 'Gaya', 'Muzaffarpur'],
+        'Chhattisgarh': ['Raipur', 'Bilaspur', 'Korba'],
+        'Goa': ['Panaji', 'Margao', 'Vasco da Gama'],
+        'Gujarat': ['Ahmedabad', 'Surat', 'Vadodara'],
+        'Haryana': ['Chandigarh', 'Faridabad', 'Gurugram'],
+        'Himachal Pradesh': ['Shimla', 'Manali', 'Kullu'],
+        'Jharkhand': ['Ranchi', 'Jamshedpur', 'Dhanbad'],
+        'Karnataka': ['Bengaluru', 'Mysuru', 'Hubli'],
+        'Kerala': ['Thiruvananthapuram', 'Kochi', 'Kozhikode'],
+        'Madhya Pradesh': ['Bhopal', 'Indore', 'Gwalior'],
+        'Maharashtra': ['Mumbai', 'Pune', 'Nagpur'],
+        'Manipur': ['Imphal', 'Thoubal', 'Kakching'],
+        'Meghalaya': ['Shillong', 'Tura', 'Jowai'],
+        'Mizoram': ['Aizawl', 'Champhai', 'Kolasib'],
+        'Nagaland': ['Kohima', 'Dimapur', 'Mokokchung'],
+        'Odisha': ['Bhubaneswar', 'Cuttack', 'Rourkela'],
+        'Punjab': ['Chandigarh', 'Amritsar', 'Ludhiana'],
+        'Rajasthan': ['Jaipur', 'Udaipur', 'Jodhpur'],
+        'Sikkim': ['Gangtok', 'Namchi', 'Mangan'],
+        'Tamil Nadu': ['Chennai', 'Coimbatore', 'Madurai'],
+        'Telangana': ['Hyderabad', 'Warangal', 'Khammam'],
+        'Tripura': ['Agartala', 'Udaipur', 'Belonia'],
+        'Uttar Pradesh': ['Lucknow', 'Kanpur', 'Varanasi'],
+        'Uttarakhand': ['Dehradun', 'Haridwar', 'Rishikesh'],
+        'West Bengal': ['Kolkata', 'Siliguri', 'Asansol'],
+        'Andaman and Nicobar Islands': ['Port Blair'],
+        'Chandigarh': ['Chandigarh'],
+        'Dadra and Nagar Haveli and Daman and Diu': ['Daman', 'Silvassa'],
+        'Lakshadweep': ['Kavaratti'],
+        'Delhi': ['New Delhi', 'Dwarka', 'Vikas Puri'],
+        'Puducherry': ['Puducherry']
+    },
+    'hi': {
+      
+    'आंध्र प्रदेश': [
+        'हैदराबाद', 'विशाखापट्टनम', 'विजयवाड़ा', 'गंटा', 'काकीनाडा', 'नलगोंडा', 'राजमुंदरी', 'नंदयाल', 'सतिर', 'विजयनगरम', 'चित्तूर', 'महबूबनगर', 'पालमनेरु', 'मधुरवाडी', 'सांगम', 'बद्राचलम', 'हैदराबाद', 'काकीनाडा', 'नारायणपेट', 'नवीननगर'
+    ],
+    'अरुणाचल प्रदेश': [
+        'ईटानगर', 'तवांग', 'पासीघाट', 'अलेन', 'सियोग', 'कुंबो', 'पालिंडा', 'नसिन', 'छेग्य', 'दिगलि', 'झामो', 'धवीन', 'जांगा', 'तोका', 'रंगी', 'बेंडो', 'गोना', 'हलीब', 'नकते', 'तकोल'
+    ],
+    'असम': [
+        'गुवाहाटी', 'डिब्रूगढ़', 'जोरहाट', 'लखीमपुर', 'धुबरी', 'मोरान', 'बोंगाईगांव', 'नलबाड़ी', 'सोनारी', 'उलुबारी', 'सोनापुर', 'चेराय', 'भलूकपारा', 'नलबाड़ी', 'उलुबारी', 'चिरांग', 'हजलदंगा'
+    ],
+    'बिहार': [
+        'पटना', 'गया', 'मुजफ्फरपुर', 'सीवान', 'भागलपुर', 'मधुबनी', 'नालंदा', 'छपरा', 'दरभंगा', 'बेगूसराय', 'समस्तीपुर', 'आरा', 'किशनगंज', 'सुपौल', 'कांटी', 'जमुई', 'नवादा', 'गोह', 'पाटलिपुत्र'
+    ],
+    'छत्तीसगढ़': [
+        'रायपुर', 'बिलासपुर', 'कोरबा', 'दुर्ग', 'राजनांदगांव', 'रायगढ़', 'बस्तर', 'संगवारी', 'कबीरधाम', 'नर्मदा', 'कुल्हार', 'दंतेवाड़ा', 'बिलासपुर', 'मुरझरा', 'रविकनगर', 'बलौदाबाजार', 'चिरमिरी', 'जांजगीर', 'खरसिया'
+    ],
+    'गोवा': [
+        'पणजी', 'मडगांव', 'वास्को दा गामा', 'पालोलेम', 'कुंजिगोवा', 'वाघाटो', 'कारम्बोलिम', 'कानकोण', 'मोरजी', 'लिडोरा', 'अंजेना', 'पिरौल', 'विराजाम'
+    ],
+    'गुजरात': [
+        'अहमदाबाद', 'सूरत', 'वडोदरा', 'राजकोट', 'भावनगर', 'साबरकांठा', 'गांधीनगर', 'द्वारका', 'दाहोद', 'पाटन', 'वलसाड', 'गोधरा', 'नवसारी', 'मोरबी', 'मणिनगर', 'अंबाजी', 'हिम्मतनगर', 'नारायणगढ़'
+    ],
+    'हरियाणा': [
+        'चंडीगढ़', 'फरीदाबाद', 'गुरुग्राम', 'सोनीपत', 'रोहतक', 'हिसार', 'अम्बाला', 'करनाल', 'पानीपत', 'झज्जर', 'भिवानी', 'नारनौल', 'जींद', 'रेवाड़ी', 'पलवल', 'कोसली', 'बरवाला', 'सिरसा'
+    ],
+    'हिमाचल प्रदेश': [
+        'शिमला', 'मनाली', 'कुल्लू', 'कांगड़ा', 'धर्मशाला', 'पालमपुर', 'हमीरपुर', 'ऊना', 'सुजानपुर', 'बिलासपुर', 'सोलन', 'नाहन', 'कुल्लू', 'आदर्श', 'खुशहाल', 'चंबा', 'बीड़', 'गग्गल'
+    ],
+    'झारखंड': [
+        'रांची', 'जमशेदपुर', 'धनबाद', 'हजारीबाग', 'देवघर', 'कोडरमा', 'धनगढ़', 'कुजू', 'गिरिडीह', 'साहेबगंज', 'लोहरदगा', 'सिंहभूम', 'गोड्डा', 'पाकुड़', 'चतरा', 'रायमहल', 'कुण्डा', 'खरीहाट'
+    ],
+    'कर्नाटका': [
+        'बेंगलुरु', 'मैसूर', 'हुबली', 'दावणगेरे', 'धारवाड़', 'गदग', 'बागलकोट', 'बेलगावी', 'रायचूर', 'विजयपुर', 'शिवमोग्गा', 'कोलार', 'रामनगर', 'चित्रदुर्ग', 'तुमकुर', 'होसपेट', 'कुल्लुर', 'मंगलौर', 'सिरसी'
+    ],
+    'केरल': [
+        'तिरुवनंतपुरम', 'कोच्चि', 'कोझीकोड', 'मल्लापुरम', 'कोट्टायम', 'इडुक्की', 'पत्तनमतिता', 'अलप्पुझा', 'कासरगोड', 'थिरसुर', 'वायनाड', 'नदियां', 'कन्नूर', 'चांगनाचेरि', 'पाय्यनद', 'इसीस', 'नीलकंठ'
+    ],
+    'मध्य प्रदेश': [
+        'भोपाल', 'इंदौर', 'ग्वालियर', 'जबलपुर', 'उज्जैन', 'सागर', 'रीवा', 'सिवनी', 'छतरपुर', 'कटनी', 'नर्मदा', 'देवास', 'शिवपुरी', 'भोपाल', 'धार', 'मंडला', 'अनुपपुर', 'पचमढ़ी'
+    ],
+    'महाराष्ट्र': [
+        'मुंबई', 'पुणे', 'नागपुर', 'नासिक', 'औरंगाबाद', 'अहमदनगर', 'कोल्हापुर', 'ठाणे', 'सोलापुर', 'लातूर', 'सातारा', 'पालघर', 'रत्नागिरी', 'धुले', 'नंदुरबार', 'वसई', 'वर्धा', 'गोंदिया', 'बुलढाना'
+    ],
+    'मणिपुर': [
+        'इंफाल', 'थौबल', 'ककचिंग', 'सिंद्री', 'पाओल', 'कांगपोक्पी', 'कैरांग', 'कप्चा', 'हाप्ता', 'कुमरू', 'तामेंगलों', 'धीरपुर', 'मराज', 'टैमी', 'रोजा'
+    ],
+    'मेघालय': [
+        'शिलॉन्ग', 'तुरा', 'जोवाई', 'नेलांग', 'खालगांव', 'नोकमिक', 'बेराकी', 'री-नम', 'हेंडैब', 'अलींग'
+    ],
+    'मिजोरम': [
+        'आइजोल', 'चम्पई', 'कोलासिब', 'लुंगलेई', 'मामित', 'साइचेम', 'हसमाई', 'दमचीर', 'कोसमी', 'धुआल्खन'
+    ],
+    'नागालैंड': [
+        'कोहिमा', 'दीमापुर', 'मोकोकचुंग', 'पिठु', 'पानाम', 'चुंगी', 'नांगलां', 'अमानी', 'खोलवाज'
+    ],
+    'ओडिशा': [
+        'भुवनेश्वर', 'कटक', 'राउरकेला', 'पुरी', 'कंधमाल', 'बरगढ़', 'सम्बलपुर', 'धेनकनाल', 'गंजम', 'जगतसिंहपुर', 'झारसुगुड़ा', 'पाटी', 'कांधलपूर', 'गोविंदपुर'
+    ],
+    'पंजाब': [
+        'चंडीगढ़', 'अमृतसर', 'लुधियाना', 'पठानकोट', 'फिरोजपुर', 'बठिंडा', 'हुसैनीवाला', 'जालंधर', 'गुरदासपुर', 'फाजिल्का', 'जिओंदा', 'मुक्तसर', 'होशियारपुर'
+    ],
+    'राजस्थान': [
+        'जयपुर', 'उदयपुर', 'जोधपुर', 'कोटा', 'अजमेर', 'भीलवाड़ा', 'राजसमंद', 'सिरोही', 'ललितपुर', 'नागौर', 'बीकानेर', 'सवाई माधोपुर', 'धौलपुर', 'टोंक'
+    ],
+    'सिक्किम': [
+        'गंगटोक', 'नामची', 'मंगन', 'रंगली', 'पूर्वी', 'पिनाकी', 'मगया', 'लिंछु'
+    ],
+    'तमिलनाडु': [
+        'चेन्नई', 'कोयंबटूर', 'मदुरै', 'वेल्लोर', 'सालम', 'तिरुचिरापल्ली', 'थनजावूर', 'तिरुपुर', 'धार्मिक', 'अर्कटन'
+    ],
+    'तेलंगाना': [
+        'हैदराबाद', 'वारंगल', 'खम्मम', 'महबूबाबाद', 'खरीबू', 'बादरी', 'गुंतूर', 'पाकल', 'रंगारेड्डी'
+    ],
+    'त्रिपुरा': [
+        'अगरतला', 'उदयपुर', 'बेलोनिया', 'धालिवार', 'सिसान', 'पुरुल', 'भैरवी'
+    ],
+    'उत्तर प्रदेश': [
+        'लखनऊ', 'कानपुर', 'वाराणसी', 'गोरखपुर', 'अलीगढ़', 'झांसी', 'मेरठ', 'इटावा', 'आगरा', 'चित्रकूट'
+    ],
+    'उत्तराखंड': [
+        'देहरादून', 'हरिद्वार', 'ऋषिकेश', 'नैनीताल', 'हल्द्वानी', 'रुद्रपुर', 'काशीपुर', 'सोनापुरी', 'पलवला'
+    ],
+    'पश्चिम बंगाल': [
+        'कोलकाता', 'सिलीगुड़ी', 'आसनसोल', 'बांकुरा', 'पुरुलिया', 'तृणमूल', 'चांदेर', 'दरिपन'
+    ],
+    'अंडमान और निकोबार द्वीपसमूह': ['पोर्ट ब्लेयर'],
+    'चंडीगढ़': ['चंडीगढ़'],
+    'दादरा और नगर हवेली और दमण और दीव': ['दमण', 'सिलवासा'],
+    'लक्षद्वीप': ['कावारत्ती'],
+    'दिल्ली': ['नई दिल्ली', 'द्वारका', 'विकासपुरी'],
+    'पुडुचेरी': ['पुडुचेरी']
+}
+
+    }
+
+
+
+      // Function to update states dropdown based on selected language
+      function print_state(lang) {
+        var stateDropdown = document.getElementById("sts");
+        stateDropdown.innerHTML = '';  // Clear existing options
+
+        var stateList = states[lang];
+        stateList.forEach(function(state) {
+          var option = document.createElement("option");
+          option.value = state;
+          option.text = state;
+          stateDropdown.appendChild(option);
+        });
+
+        // Trigger city update when language is switched
+        print_city(stateDropdown.selectedIndex);
+      }
+
+
+
+      function convertToHindi(inputElement) {
+  // Check if the language is Hindi
+  if ('{{ lang }}' === 'hi') {
+    let inputValue = inputElement.value;  // Get the value typed by the user
+    let hindiNumbers = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];  // Hindi digits array
+    
+    // Replace English digits with Hindi digits
+    let convertedValue = inputValue.split('').map(function(char) {
+      return char.match(/[0-9]/) ? hindiNumbers[parseInt(char)] : char;  // Convert digits
+    }).join('');
+    
+    // Update the input value with the Hindi numerals
+    inputElement.value = convertedValue;
+  }
+}
+
+
+
+      // Function to update cities dropdown based on selected state
+      function print_city(stateIndex) {
+        var stateDropdown = document.getElementById("sts");
+        var cityDropdown = document.getElementById("state");
+        var selectedState = stateDropdown.options[stateIndex].value;
+
+        cityDropdown.innerHTML = '';  // Clear existing options
+
+        var cityList = cities['{{ lang }}'][selectedState] || [];
+        cityList.forEach(function(city) {
+          var option = document.createElement("option");
+          option.value = city;
+          option.text = city;
+          cityDropdown.appendChild(option);
+        });
+      }
+
+      // Initialize state and city dropdowns based on language
+      print_state('{{ lang }}');
+    </script>
+
+    <div style="text-align: center;">
+      <button type="submit" class="morph-button">
+        {{ t['predict'] if lang == 'en' else 'भविष्यवाणी करें' }}
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Embedded CSS -->
+<style>
+  * {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  body {
+    background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+    margin: 0;
+    padding: 0;
+    color: #2d3436;
+  }
+
+  h2 {
+    text-align: center;
+    margin-top: 40px;
+    color: #ffffff;
+    font-size: 24px;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+  }
+
+  .form-container {
+    width: 400px;
+    margin: 3rem auto;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 25px;
+    box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.2);
+    padding: 30px;
+  }
+
+  label {
+    font-size: 17px;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 5px;
+    color: #2d3436;
+  }
+
+  input,
+  select {
+    width: 100%;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    background: #f1f2f6;
+    font-weight: bold;
+    box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;
+    color: #2d3436;
+  }
+
+  input:focus,
+  select:focus {
+    box-shadow: 0 0 0 2px #74b9ff;
+  }
+
+  .morph-button {
+    background: #ecf0f3;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #2d3436;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 5px 5px 15px #b8b9be, -5px -5px 15px #ffffff;
+  }
+
+  .morph-button:hover {
+    background: #dff9fb;
+    box-shadow: inset 5px 5px 15px #b8b9be, inset -5px -5px 15px #ffffff;
+    transform: scale(1.05);
+  }
+
+  @media (max-width: 500px) {
+    .form-container {
+      width: 90%;
+      padding: 20px;
+    }
+
+    h2 {
+      font-size: 20px;
+    }
+  }
+</style>
+
+{% endblock %}

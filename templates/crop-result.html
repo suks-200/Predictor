@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ t['title_crop_result'] }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* (same CSS, unchanged) */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f0f8ff, #dff9fb);
+      color: #2d3436;
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: #0984e3;
+      padding: 1rem 2rem;
+      color: white;
+      font-weight: bold;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    .back-btn {
+      margin-top: 30px;
+      padding: 0.5rem 1.2rem;
+      background: #0984e3;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .back-btn:hover {
+      background: #74b9ff;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 6rem auto 2rem auto;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .card {
+      background: linear-gradient(145deg, #ffffff, #e3f2fd);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      border-radius: 20px;
+      padding: 3rem 2rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      color: #0984e3;
+      margin: 0;
+    }
+
+    i {
+      color: #00b894;
+      font-style: italic;
+    }
+
+    .lang-switch {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 1001;
+    }
+
+    .lang-switch a {
+      color: white;
+      text-decoration: underline;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        margin: 4rem 1rem;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav>
+    {{ t['navbar_title'] }}
+  </nav>
+
+  <!-- Language Switcher -->
+  <!-- <div class="lang-switch">
+    {% if lang == 'hi' %}
+      <a href="{{ url_for('switch_language', language='en') }}">Switch to English</a>
+    {% else %}
+      <a href="{{ url_for('switch_language', language='hi') }}">हिंदी में बदलें</a>
+    {% endif %}
+  </div> -->
+
+  <!-- Result Card -->
+  <div class="container">
+    <div class="card">
+      <h1><b>{{ t['result_text'].format(crop=prediction) }}</b></h1>
+      <!-- Display crop name in Hindi if language is Hindi -->
+      <h2><i>
+        {% if lang == 'hi' %}
+          {{ t['crop_name'][prediction] }} <!-- This line maps to the translation of crop name in Hindi -->
+        {% else %}
+          {{ prediction }} <!-- Default crop name in English -->
+        {% endif %}
+      </i></h2>
+    </div>
+
+    <!-- Back Button -->
+    <a href="{{ url_for('home') }}" class="back-btn">
+      {{ t['go_home'] }}
+    </a>
+  </div>
+
+</body>
+</html>

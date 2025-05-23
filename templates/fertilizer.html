@@ -1,0 +1,166 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<!-- Language Switcher Section -->
+<div style="text-align: right; margin: 20px;">
+  <a href="{{ url_for('switch_language', language='en') }}" class="btn btn-primary">
+    {{ 'अंग्रेज़ी' if lang == 'hi' else 'English ' }}
+  </a>
+  <a href="{{ url_for('switch_language', language='hi') }}" class="btn btn-secondary">
+    {{ 'Hindi' if lang == 'en' else 'हिन्दी' }}
+  </a>
+</div>
+
+<!-- Form Heading -->
+<h2 class="text-center" style="font-size: 24px; color: #ffffff; text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);">
+    <b>{{ t['fertilizer_advice'] if lang == 'en' else 'फसल के लिए उर्वरक सलाह' }}</b>
+</h2>
+
+<!-- Form Section -->
+<div class="form-container">
+  <form method="POST" action="{{ url_for('fert_recommend') }}">
+    <label for="Nitrogen">{{ t['nitrogen'] if lang == 'en' else 'नाइट्रोजन' }}</label>
+    <input type="text" id="Nitrogen" name="nitrogen" placeholder="{{ t['enter_value'] if lang == 'en' else 'मान दर्ज करें' }}" required oninput="convertToHindi(this)" />
+
+    <label for="Phosphorous">{{ t['phosphorous'] if lang == 'en' else 'फास्फोरस' }}</label>
+    <input type="text" id="Phosphorous" name="phosphorous" placeholder="{{ t['enter_value'] if lang == 'en' else 'मान दर्ज करें' }}" required oninput="convertToHindi(this)" />
+
+    <label for="Pottasium">{{ t['pottasium'] if lang == 'en' else 'पोटेशियम' }}</label>
+    <input type="text" id="Pottasium" name="pottasium" placeholder="{{ t['enter_value'] if lang == 'en' else 'मान दर्ज करें' }}" required oninput="convertToHindi(this)" />
+
+    <label for="crop">{{ t['crop_to_grow'] if lang == 'en' else 'जो फसल आप उगाना चाहते हैं' }}</label>
+    <select name="cropname" id="crop" required>
+      <option disabled selected>{{ t['select_crop'] if lang == 'en' else 'फसल चुनें' }}</option>
+      <option value="rice">{{ 'Rice (चावल)' if lang == 'en' else 'चावल (Rice)' }}</option>
+      <option value="maize">{{ 'Maize (मक्का)' if lang == 'en' else 'मक्का (Maize)' }}</option>
+      <option value="chickpea">{{ 'Chickpea (चना)' if lang == 'en' else 'चना (Chickpea)' }}</option>
+      <option value="kidneybeans">{{ 'Kidney Beans (राजमा)' if lang == 'en' else 'राजमा (Kidney Beans)' }}</option>
+      <option value="pigeonpeas">{{ 'Pigeon Peas (तुअर दाल)' if lang == 'en' else 'तुअर दाल (Pigeon Peas)' }}</option>
+      <option value="mothbeans">{{ 'Moth Beans (मोट दाल)' if lang == 'en' else 'मोट दाल (Moth Beans)' }}</option>
+      <option value="mungbean">{{ 'Mung Bean (मूंग दाल)' if lang == 'en' else 'मूंग दाल (Mung Bean)' }}</option>
+      <option value="blackgram">{{ 'Black Gram (उड़द दाल)' if lang == 'en' else 'उड़द दाल (Black Gram)' }}</option>
+      <option value="lentil">{{ 'Lentil (मसूर दाल)' if lang == 'en' else 'मसूर दाल (Lentil)' }}</option>
+      <option value="pomegranate">{{ 'Pomegranate (अनार)' if lang == 'en' else 'अनार (Pomegranate)' }}</option>
+      <option value="banana">{{ 'Banana (केला)' if lang == 'en' else 'केला (Banana)' }}</option>
+      <option value="mango">{{ 'Mango (आम)' if lang == 'en' else 'आम (Mango)' }}</option>
+      <option value="grapes">{{ 'Grapes (अंगूर)' if lang == 'en' else 'अंगूर (Grapes)' }}</option>
+      <option value="watermelon">{{ 'Watermelon (तरबूज)' if lang == 'en' else 'तरबूज (Watermelon)' }}</option>
+      <option value="muskmelon">{{ 'Muskmelon (खरबूजा)' if lang == 'en' else 'खरबूजा (Muskmelon)' }}</option>
+      <option value="apple">{{ 'Apple (सेब)' if lang == 'en' else 'सेब (Apple)' }}</option>
+      <option value="orange">{{ 'Orange (संतरा)' if lang == 'en' else 'संतरा (Orange)' }}</option>
+      <option value="papaya">{{ 'Papaya (पपीता)' if lang == 'en' else 'पपीता (Papaya)' }}</option>
+      <option value="coconut">{{ 'Coconut (नारियल)' if lang == 'en' else 'नारियल (Coconut)' }}</option>
+      <option value="cotton">{{ 'Cotton (कपास)' if lang == 'en' else 'कपास (Cotton)' }}</option>
+      <option value="jute">{{ 'Jute (जूट)' if lang == 'en' else 'जूट (Jute)' }}</option>
+      <option value="coffee">{{ 'Coffee (कॉफी)' if lang == 'en' else 'कॉफी (Coffee)' }}</option>
+    </select>
+    
+    <button type="submit" class="morph-button">{{ t['predict'] if lang == 'en' else 'भविष्यवाणी करें' }}</button>
+  </form>
+</div>
+
+<script language="javascript">
+  // Function to convert numbers to Hindi digits
+  function convertToHindi(inputElement) {
+    if ('{{ lang }}' === 'hi') {
+      let inputValue = inputElement.value;  // Get the value typed by the user
+      let hindiNumbers = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];  // Hindi digits array
+      let convertedValue = inputValue.split('').map(function(char) {
+        return char.match(/[0-9]/) ? hindiNumbers[parseInt(char)] : char;  // Convert digits
+      }).join('');
+      inputElement.value = convertedValue;  // Update the input field with Hindi numerals
+    }
+  }
+</script>
+
+
+<!-- Embedded CSS -->
+<style>
+  * {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  body {
+    background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+    margin: 0;
+    padding: 0;
+    color: #2d3436;
+  }
+
+  h2 {
+    text-align: center;
+    margin-top: 40px;
+    color: #ffffff;
+    font-size: 24px;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+  }
+
+  .form-container {
+    width: 400px;
+    margin: 3rem auto;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 25px;
+    box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.2);
+    padding: 30px;
+  }
+
+  label {
+    font-size: 17px;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 5px;
+    color: #2d3436;
+  }
+
+  input,
+  select {
+    width: 100%;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    background: #f1f2f6;
+    font-weight: bold;
+    box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;
+    color: #2d3436;
+  }
+
+  input:focus,
+  select:focus {
+    box-shadow: 0 0 0 2px #74b9ff;
+  }
+
+  .morph-button {
+    background: #ecf0f3;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #2d3436;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 5px 5px 15px #b8b9be, -5px -5px 15px #ffffff;
+  }
+
+  .morph-button:hover {
+    background: #dff9fb;
+    box-shadow: inset 5px 5px 15px #b8b9be, inset -5px -5px 15px #ffffff;
+    transform: scale(1.05);
+  }
+
+  @media (max-width: 500px) {
+    .form-container {
+      width: 90%;
+      padding: 20px;
+    }
+
+    h2 {
+      font-size: 20px;
+    }
+  }
+</style>
+
+{% endblock %}

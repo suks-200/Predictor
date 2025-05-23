@@ -1,0 +1,85 @@
+{% extends 'layout.html' %}
+{% block body %}
+
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #f0f8ff, #dff9fb);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .main-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 90vh; /* leave room for navbar */
+    padding-top: 60px; /* ensures space if navbar overlaps */
+  }
+
+  .result-container {
+    width: 500px;
+    background: #ecf0f3;
+    border-radius: 30px;
+    box-shadow: 20px 20px 60px #c8d0e7, -20px -20px 60px #ffffff;
+    padding: 50px 30px;
+    text-align: center;
+  }
+
+  .result-text {
+    font-size: 24px;
+    font-weight: 600;
+    color: #2d3436;
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: inset 6px 6px 10px #d1d9e6, inset -6px -6px 10px #ffffff;
+    text-align: left;
+  }
+
+  .morph-button {
+    margin-top: 30px;
+    background: #ecf0f3;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #2d3436;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 5px 5px 15px #b8b9be, -5px -5px 15px #ffffff;
+  }
+
+  .morph-button:hover {
+    background: #dff9fb;
+    box-shadow: inset 5px 5px 15px #b8b9be, inset -5px -5px 15px #ffffff;
+    transform: scale(1.05);
+  }
+
+  @media (max-width: 600px) {
+    .result-container {
+      width: 90%;
+      padding: 30px 20px;
+    }
+
+    .result-text {
+      font-size: 20px;
+    }
+  }
+</style>
+
+<div class="main-wrapper">
+  <div class="result-container">
+    <p class="result-text">
+      {{ prediction | safe }}
+    </p>
+    <form action="/">
+      <button class="morph-button" type="submit">
+        {{ t['back_to_form'] }}
+      </button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

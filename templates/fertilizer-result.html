@@ -1,0 +1,121 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to right, #e0f7fa, #f1f8e9);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: #2d3436;
+    flex-direction: column;
+  }
+
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: #2d3436;
+    padding: 15px;
+    color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+  }
+
+  .footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #2d3436;
+    padding: 15px;
+    color: #ffffff;
+    text-align: center;
+  }
+
+  .recommendation-box {
+    background: #ecf0f3;
+    padding: 40px 30px;
+    border-radius: 25px;
+    width: 600px;
+    box-shadow: 15px 15px 30px #d1d9e6, -15px -15px 30px #ffffff;
+    text-align: center;
+    margin-top: 80px;
+  }
+
+  .recommendation-text {
+    font-size: 22px;
+    font-weight: 600;
+    color: #0984e3;
+    text-shadow: 1px 1px 2px #dfe6e9;
+    margin-bottom: 30px;
+  }
+
+  .morph-button {
+    background: #ecf0f3;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #2d3436;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 6px 6px 12px #b8b9be, -6px -6px 12px #ffffff;
+  }
+
+  .morph-button:hover {
+    background: #dff9fb;
+    box-shadow: inset 5px 5px 15px #b8b9be, inset -5px -5px 15px #ffffff;
+    transform: scale(1.05);
+  }
+
+  .language-switch {
+    background: none;
+    border: 1px solid #2d3436;
+    padding: 8px 16px;
+    border-radius: 15px;
+    color: #2d3436;
+    font-weight: bold;
+    cursor: pointer;
+    margin-right: 20px;
+  }
+
+  .language-switch:hover {
+    background: #dff9fb;
+    box-shadow: inset 5px 5px 15px #b8b9be, inset -5px -5px 15px #ffffff;
+  }
+</style>
+<div class="navbar">
+  {% if lang == 'en' %}
+    <span class="language-label btn btn-primary">English</span>
+  {% else %}
+    <span class="language-label btn btn-secondary">हिन्दी</span>
+  {% endif %}
+  <span>Predictor</span>
+</div>
+
+
+
+<div class="recommendation-box">
+  <p class="recommendation-text">
+    {{ recommendation if lang == 'en' else 'सुझाव: ' ~ recommendation }}
+  </p>
+  <form action="/"><button type="submit" class="morph-button">
+    {{ 'Go Back' if lang == 'en' else 'वापस जाएं' }}
+  </button></form>
+</div>
+
+<div class="footer">
+  <p>&copy; 2025 Predictor. All rights reserved.</p>
+</div>
+
+{% endblock %}
